@@ -2,6 +2,7 @@
   v-app(:dark='$vuetify.theme.dark').tags
     nav-header
     v-navigation-drawer.pb-0.elevation-1(app, fixed, clipped, :right='$vuetify.rtl', permanent, width='300')
+      v-text-field(label="Search for a tag", rounded, padding, v-model='tagsSearch')
       vue-scroll(:ops='scrollStyle')
         v-list(dense, nav)
           v-list-item(href='/')
@@ -169,6 +170,8 @@ export default {
   data() {
     return {
       tags: [],
+      searchedTags: [],
+      tagsSearch: '',
       selection: [],
       innerSearch: '',
       locale: 'any',
@@ -209,10 +212,10 @@ export default {
   },
   computed: {
     tagsGrouped () {
-      return _.groupBy(this.tags, t => t.title.charAt(0).toUpperCase())
+      return _.groupBy(this.searchedTags, t => t.title.charAt(0).toUpperCase())
     },
     tagsSelected () {
-      return _.filter(this.tags, t => _.includes(this.selection, t.tag))
+      return _.filter(this.searchedTags, t => _.includes(this.selection, t.tag))
     },
     pageTotal () {
       return Math.ceil(this.pages.length / this.pagination.itemsPerPage)
@@ -228,6 +231,19 @@ export default {
     }
   },
   watch: {
+    tagsSearch() {
+      if (this.tagsSearch === '') {
+        this.searchedTags = this.tags
+        return
+      }
+
+      this.searchedTags = this.tags.filter((t) => {
+        return t.title.toLowerCase().includes(this.tagsSearch.toLowerCase())
+      })
+    },
+    tags() {
+      this.searchedTags = this.tags
+    },
     locale (newValue, oldValue) {
       this.rebuildURL()
     },
@@ -246,6 +262,7 @@ export default {
     this.selection = _.compact(decodeURI(this.$route.path).split('/'))
   },
   mounted () {
+    console.log('HI')
     this.locales = _.concat(
       [{name: this.$t('tags:localeAny'), code: 'any'}],
       (siteLangs.length > 0 ? siteLangs : [])
