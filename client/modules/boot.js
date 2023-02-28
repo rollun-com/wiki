@@ -63,6 +63,12 @@ export default {
       clb()
     } else {
       document.addEventListener('DOMContentLoaded', clb)
+      // adding chatbot script
+      const script = document.createElement('script')
+      script.type = 'text/javascript'
+      script.src = '//code.jivosite.com/widget/FEqzCFbOx4'
+
+      document.head.appendChild(script)
     }
   }
 }
